@@ -1,142 +1,106 @@
 # faceswap-GAN
-Adding Adversarial loss and perceptual loss (VGGface) to deepfakes' auto-encoder architecture.
+Adding Adversarial loss and perceptual loss (VGGface) to deepfakes'(reddit user) auto-encoder architecture.
 
-## Descriptions
-### GAN-v1
-* [FaceSwap_GAN_github.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_github.ipynb)
+## Updates
+| Date          | Update        |
+| ------------- | ------------- |    
+| 2018-08-27      | **Colab support:** A [colab notebook](https://colab.research.google.com/github/shaoanlu/faceswap-GAN/blob/master/colab_demo/faceswap-GAN_colab_demo.ipynb) for faceswap-GAN v2.2 is provided.| 
+| 2018-07-25      | **Data preparation:** Add a [new notebook](https://github.com/shaoanlu/faceswap-GAN/blob/master/MTCNN_video_face_detection_alignment.ipynb) for video pre-processing in which MTCNN is used for face detection as well as face alignment.| 
+| 2018-06-29      | **Model architecture**: faceswap-GAN v2.2 now supports different output resolutions: 64x64, 128x128, and 256x256. Default `RESOLUTION = 64` can be changed in the config cell of [v2.2 notebook](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2.2_train_test.ipynb).|
+| 2018-06-25      | **New version**: faceswap-GAN v2.2 has been released. The main improvements of v2.2 model are its capability of generating realistic and consistent eye movements (results are shown below, or Ctrl+F for eyes), as well as higher video quality with face alignment.|
+| 2018-06-06      | **Model architecture**: Add a self-attention mechanism proposed in [SAGAN](https://arxiv.org/abs/1805.08318) into V2 GAN model. (Note: There is still no official code release for SAGAN, the implementation in this repo. could be wrong. We'll keep an eye on it.)|
 
-  1. Build and train a GAN model. 
-  2. Use moviepy module to output a video clip with swapped face.  
+## Google Colab support
+Here is a [playground notebook](https://colab.research.google.com/github/shaoanlu/faceswap-GAN/blob/master/colab_demo/faceswap-GAN_colab_demo.ipynb) for faceswap-GAN v2.2 on Google Colab. Users can train their own model in the browser.
+
+[Update 2019/10/04] There seems to be import errors in the latest Colab environment due to inconsistent version of packages. Please make sure that the Keras and TensorFlow follow the version number shown in the requirement section below.
+
+## Descriptions  
+### faceswap-GAN v2.2
+* [FaceSwap_GAN_v2.2_train_test.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2.2_train_test.ipynb)
+  - Notebook for model training of faceswap-GAN model version 2.2.
+  - This notebook also provides code for still image transformation at the bottom.
+  - Require additional training images generated through [prep_binary_masks.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/prep_binary_masks.ipynb).
   
-### GAN-v2
-* [FaceSwap_GAN_v2_train.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2_train.ipynb): Detailed training procedures can be found in this notebook.
-  1. Build and train a GAN model. 
-  2. Use moviepy module to output a video clip with swapped face.
+* [FaceSwap_GAN_v2.2_video_conversion.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2.2_video_conversion.ipynb)
+  - Notebook for video conversion of faceswap-GAN model version 2.2.
+  - Face alignment using 5-points landmarks is introduced to video conversion.
   
-* [FaceSwap_GAN_v2_test_img.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2_test_img.ipynb): Provides `swap_face()` function that require less VRAM.
-  1. Load trained model.
-  2. Do single image face swapping.
+* [prep_binary_masks.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/prep_binary_masks.ipynb)
+  - Notebook for training data preprocessing. Output binary masks are save in `./binary_masks/faceA_eyes` and `./binary_masks/faceB_eyes` folders.
+  - Require [face_alignment](https://github.com/1adrianb/face-alignment) package. (An alternative method for generating binary masks (not requiring `face_alignment` and `dlib` packages) can be found in [MTCNN_video_face_detection_alignment.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/MTCNN_video_face_detection_alignment.ipynb).) 
   
-* [FaceSwap_GAN_v2_test_video.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2_test_video.ipynb)
-  1. Load trained model.
-  2. Use moviepy module to output a video clip with swapped face. 
+* [MTCNN_video_face_detection_alignment.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/MTCNN_video_face_detection_alignment.ipynb)
+  - This notebook performs face detection/alignment on the input video. 
+  - Detected faces are saved in `./faces/raw_faces` and `./faces/aligned_faces` for non-aligned/aligned results respectively.
+  - Crude eyes binary masks are also generated and saved in `./faces/binary_masks_eyes`. These binary masks can serve as a suboptimal alternative to masks generated through [prep_binary_masks.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/prep_binary_masks.ipynb). 
   
-* [faceswap_WGAN-GP_keras_github.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/temp/faceswap_WGAN-GP_keras_github.ipynb)
-  - This notebook contains a class of GAN mdoel using [WGAN-GP](https://arxiv.org/abs/1704.00028). 
-  - Perceptual loss is discarded for simplicity. 
-  - The WGAN-GP model gave me similar result with LSGAN model after tantamount (~18k) generator updates.
-  ```python
-  gan = FaceSwapGAN() # instantiate the class
-  gan.train(max_iters=10e4, save_interval=500) # start training
-  ```
-* [FaceSwap_GAN_v2_sz128_train.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2_sz128_train.ipynb)
-  - Input and output images have shape `(128, 128, 3)`.
-  - Minor updates on the architectures: 
-    1. Add instance normalization to generators and discriminators.
-    2. Add additional regressoin loss (mae loss) on 64x64 branch output.
-  - Not compatible with `_test_video` and `_test_img` notebooks above.
+**Usage**
+1. Run [MTCNN_video_face_detection_alignment.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/MTCNN_video_face_detection_alignment.ipynb) to extract faces from videos. Manually move/rename the aligned face images into `./faceA/` or `./faceB/` folders.
+2. Run [prep_binary_masks.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/prep_binary_masks.ipynb) to generate binary masks of training images. 
+    - You can skip this pre-processing step by (1) setting `use_bm_eyes=False` in the config cell of the train_test notebook, or (2) use low-quality binary masks generated in step 1.
+3. Run [FaceSwap_GAN_v2.2_train_test.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2.2_train_test.ipynb) to train  models.
+4. Run  [FaceSwap_GAN_v2.2_video_conversion.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/FaceSwap_GAN_v2.2_video_conversion.ipynb) to create videos using the trained models in step 3. 
   
-### Others
-* [dlib_video_face_detection.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/dlib_video_face_detection.ipynb)
-  1. Detect/Crop faces in a video using dlib's cnn model. 
-  2. Pack cropped face images into a zip file.
- 
-* Training data: Face images are supposed to be in `./faceA/` and `./faceB/` folder for each target respectively. Face images can be of any size. (Updated 3, Jan., 2018)
-
-## Results
-
-In below are results that show trained models transforming Hinako Sano ([佐野ひなこ](https://ja.wikipedia.org/wiki/%E4%BD%90%E9%87%8E%E3%81%B2%E3%81%AA%E3%81%93)) to Emi Takei ([武井咲](https://ja.wikipedia.org/wiki/%E6%AD%A6%E4%BA%95%E5%92%B2)).  
-###### Source video: [佐野ひなことすごくどうでもいい話？(遊戯王)](https://www.youtube.com/watch?v=tzlD1CQvkwU)
-### 1. Autorecoder baseline
-
-Autoencoder based on deepfakes' script. It should be mentoined that the result of autoencoder (AE) can be much better if we trained it for longer.
-
-![AE_results](https://www.dropbox.com/s/n9xjzhlc4llbh96/AE_results.png?raw=1)
-
-### 2. Generative Adversarial Network, GAN (version 1)
-
-**Improved output quality:** Adversarial loss improves reconstruction quality of generated images. In addition, when perceptual loss is apllied, the direction of eyeballs becomes more realistic and consistent with input face.
-
-![GAN_PL_results](https://www.dropbox.com/s/ex7z8upst0toyf0/wPL_results_resized.png?raw=1)
-
-**[VGGFace](https://github.com/rcmalli/keras-vggface) perceptual loss (PL):** The following figure shows nuanced eyeballs direction of output faces trained with/without PL. 
-
-![Comp PL](https://www.dropbox.com/s/dszawjl2hlp9mut/comparison_PL_rev.png?raw=1)
-
-**Smoothed bounding box (Smoothed bbox):** Exponential moving average of bounding box position over frames is introduced to eliminate jittering on the swapped face. See the below gif for comparison.
-
-![bbox](https://www.dropbox.com/s/fla8lcpfpb20rt2/bbox_comp_annotated.gif?raw=1)
-  - A. Source face.
-  - B. Swapped face, using smoothing mask (smoothes edges of output image when pasting it back to input image).
-  - C. Swapped face, using smoothing mask and face alignment.
-  - D. Swapped face, using smoothing mask and smoothed bounding box.
-
-### 3. Generative Adversarial Network, GAN (version 2)
-
-**Version 1 features:** Most of features in version 1 are inherited, including perceptual loss and smoothed bbox.
-
-**Segmentation mask prediction:** Model learns a proper mask that helps on handling occlusion, eliminating artifacts on bbox edges, and producing natrual skin tone.
-
-![mask0](https://www.dropbox.com/s/iivdpsba1sa7wg1/comp_mask_rev.png?raw=1)
-
-![mask1](https://www.dropbox.com/s/do3gax2lmhck941/mask_comp1.gif?raw=1)  ![mask2](https://www.dropbox.com/s/gh0yq26qkr31yve/mask_comp2.gif?raw=1)
-  - Left: Source face.
-  - Middle: Swapped face, before masking.
-  - Right: Swapped face, after masking.
-
-**Mask visualization**: The following gif shows output mask & face bounding box.
-
-![mask_vis](https://www.dropbox.com/s/q6dfllwh71vavcv/mask_vis_rev.gif?raw=1)
-  - Left: Source face.
-  - Middle: Swapped face, after masking.
-  - Right: Mask heatmap & face bounding box.
+### Miscellaneous
+* [faceswap-GAN_colab_demo.ipynb](https://github.com/shaoanlu/faceswap-GAN/blob/master/colab_demo/faceswap-GAN_colab_demo.ipynb)
+  - An all-in-one notebook for demostration purpose that can be run on Google colab.
   
-**Optional 128x128 input/output resolution**: Increase input and output size to 128x128.
+### Training data format 
+  - Face images are supposed to be in `./faceA/` or `./faceB/` folder for each taeget respectively. 
+  - Images will be resized to 256x256 during training.
 
-**Mask refinement**: Tips for mask refinement are provided in the jupyter notebooks (VGGFace ResNet50 is required). The following figure shows generated masks before/after refinement. Input faces are from [CelebA dataset](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
+## Generative adversarial networks for face swapping
+### 1. Architecture
+  ![enc_arch3d](https://www.dropbox.com/s/b43x8bv5xxbo5q0/enc_arch3d_resized2.jpg?raw=1)
+  
+  ![dec_arch3d](https://www.dropbox.com/s/p09ioztjcxs66ey/dec_3arch3d_resized.jpg?raw=1)
+  
+  ![dis_arch3d](https://www.dropbox.com/s/szcq8j5axo11mu9/dis_arch3d_resized2.jpg?raw=1)
 
-![mask_refinement](https://www.dropbox.com/s/v0cgz9xqrwcuzjh/mask_refinement.jpg?raw=1)
+### 2. Results
+- **Improved output quality:** Adversarial loss improves reconstruction quality of generated images.
+  ![trump_cage](https://www.dropbox.com/s/24k16vtqkhlf13i/auto_results.jpg?raw=1)
 
-## Frequently asked questions
+- **Additional results:** [This image](https://www.dropbox.com/s/2nc5guogqk7nwdd/rand_160_2.jpg?raw=1) shows 160 random results generated by v2 GAN with self-attention mechanism (image format: source -> mask -> transformed).
 
-#### 1. Video making is slow / OOM error?
-  - It is likely due to too large resolution of input video, try to   
-  **reduce input size**
-    ```python
-    def porcess_video(input_img):
-      # Reszie to 1/2x width and height.
-      input_img = cv2.resize(input_img, (input_img.shape[1]//2, input_img.shape[0]//2))
-      image = input_image
-      ...
-    ``` 
-    or
-  **disable CNN model for face detectoin**
-    ```python
-    def process_video(...):
-      ...
-      #faces = face_recognition.face_locations(image, model="cnn") # Use CNN model
-      faces = face_recognition.face_locations(image) # Use default Haar features.  
-    ```
-#### 2. How does it work?
-  - [This illustration](https://www.dropbox.com/s/4u8q4f03px4spf8/faceswap_GAN_arch3.jpg?raw=1) shows a very high-level and abstract (but not exactly the same) flowchart of the denoising autoencoder algorithm.
-#### 3. No audio in output clips?
-  - Set `audio=True` in the video making cell.
-  ```python
-  output = 'OUTPUT_VIDEO.mp4'
-  clip1 = VideoFileClip("INPUT_VIDEO.mp4")
-  clip = clip1.fl_image(process_video)
-  %time clip.write_videofile(output, audio=True) # Set audio=True
-  ```
+- **Evaluations:** Evaluations of the output quality on Trump/Cage dataset can be found [here](https://github.com/shaoanlu/faceswap-GAN/blob/master/notes/README.md#13-model-evaluation-for-trumpcage-dataset).
+
+###### The Trump/Cage images are obtained from the reddit user [deepfakes' project](https://pastebin.com/hYaLNg1T) on pastebin.com.
+
+### 3. Features
+- **[VGGFace](https://github.com/rcmalli/keras-vggface) perceptual loss:** Perceptual loss improves direction of eyeballs to be more realistic and consistent with input face. It also smoothes out artifacts in the segmentation mask, resulting higher output quality.
+
+- **Attention mask:** Model predicts an attention mask that helps on handling occlusion, eliminating artifacts, and producing natrual skin tone.
+
+- **Configurable input/output resolution (v2.2)**: The model supports 64x64, 128x128, and 256x256 outupt resolutions.
+
+- **Face tracking/alignment using MTCNN and Kalman filter in video conversion**: 
+  - MTCNN is introduced for more stable detections and reliable face alignment (FA). 
+  - Kalman filter smoothen the bounding box positions over frames and eliminate jitter on the swapped face.
+  ![comp_FA](https://www.dropbox.com/s/kviue4065gdqfnt/comp_fa.gif?raw=1)
+  
+- **Eyes-aware training:** Introduce high reconstruction loss and edge loss in eyes area, which guides the model to generate realistic eyes.
+
+## Frequently asked questions and troubleshooting
+
+#### 1. How does it work?
+  - The following illustration shows a very high-level and abstract (but not exactly the same) flowchart of the denoising autoencoder algorithm. The objective functions look like [this](https://www.dropbox.com/s/e5j5rl7o3tmw6q0/faceswap_GAN_arch4.jpg?raw=1).
+  ![flow_chart](https://www.dropbox.com/s/4u8q4f03px4spf8/faceswap_GAN_arch3.jpg?raw=1) 
+#### 2. Previews look good, but it does not transform to the output videos?
+  - Model performs its full potential when the input images are preprocessed with face alignment methods.
+    - ![readme_note001](https://www.dropbox.com/s/a1kjy0ynnlj2g4c/readme_note00.jpg?raw=1)
 
 ## Requirements
 
-* keras 2
-* Tensorflow 1.3 
-* Python 3
+* keras 2.1.5
+* Tensorflow 1.6.0 
+* Python 3.6.4
 * OpenCV
-* dlib
-* [face_recognition](https://github.com/ageitgey/face_recognition)
+* [keras-vggface](https://github.com/rcmalli/keras-vggface)
 * [moviepy](http://zulko.github.io/moviepy/)
+* [prefetch_generator](https://github.com/justheuristic/prefetch_generator) (required for v2.2 model)
+* [face-alignment](https://github.com/1adrianb/face-alignment) (required as preprocessing for v2.2 model)
 
 ## Acknowledgments
-Code borrows from [tjwei](https://github.com/tjwei/GANotebooks), [eriklindernoren](https://github.com/eriklindernoren/Keras-GAN/blob/master/aae/adversarial_autoencoder.py), [fchollet](https://github.com/fchollet/deep-learning-with-python-notebooks/blob/master/8.5-introduction-to-gans.ipynb), [keras-contrib](https://github.com/keras-team/keras-contrib/blob/master/examples/improved_wgan.py) and [deepfakes](https://pastebin.com/hYaLNg1T). The generative network is adopted from [CycleGAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix). Part of illustrations are from [irasutoya](http://www.irasutoya.com/).
+Code borrows from [tjwei](https://github.com/tjwei/GANotebooks), [eriklindernoren](https://github.com/eriklindernoren/Keras-GAN/blob/master/aae/adversarial_autoencoder.py), [fchollet](https://github.com/fchollet/deep-learning-with-python-notebooks/blob/master/8.5-introduction-to-gans.ipynb), [keras-contrib](https://github.com/keras-team/keras-contrib/blob/master/examples/improved_wgan.py) and [reddit user deepfakes' project](https://pastebin.com/hYaLNg1T). The generative network is adopted from [CycleGAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix). Weights and scripts of MTCNN are from [FaceNet](https://github.com/davidsandberg/facenet). Illustrations are from [irasutoya](http://www.irasutoya.com/).
